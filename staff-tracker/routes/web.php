@@ -1,12 +1,17 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PasswordChangeController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\ManagerController;
-use App\Http\Controllers\TimesheetController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\TeamController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\TimeCodeController;
+use App\Http\Controllers\PasswordChangeController;
+use App\Http\Controllers\Admin\TimesheetController;
+use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\ManagerStaffController;
+use App\Http\Controllers\Admin\AdminManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,12 +69,33 @@ Route::middleware(['auth', 'verified', 'password.changed'])->group(function () {
     | Admin Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['checkRole:admin'])->prefix('admin')->name('admin.')->group(function () {
         // Admin Dashboard
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+
         // User Management
         Route::resource('users', UserController::class);
-        // ... other admin routes
+        // Search for users
+        Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
+
+        // Admins Management
+        Route::resource('admins', AdminManagementController::class);
+        // Toggle Admin Status
+        Route::patch('/admins/{admin}/toggle', [AdminManagementController::class, 'toggleStatus'])->name('admins.toggle');
+
+        // Departments Management
+        Route::get('/departments/{department}/teams', [DepartmentController::class, 'getTeams'])->name('departments.teams');
+
+        Route::resource('departments', DepartmentController::class);
+        // Teams Management
+        Route::resource('teams', TeamController::class);
+        // Time Codes Management
+        Route::resource('timecodes', TimeCodeController::class);
+        // Timesheets Management
+        Route::resource('timesheets', TimesheetController::class);
+
+        // Staff-Manager relationships
+        Route::resource('managers', ManagerStaffController::class)->only(['index', 'edit', 'update', 'destroy']);
     });
 
     /*
@@ -77,7 +103,7 @@ Route::middleware(['auth', 'verified', 'password.changed'])->group(function () {
     | Manager Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:manager')->prefix('manager')->name('manager.')->group(function () {
+    Route::middleware(['checkRole:manager'])->prefix('manager')->name('manager.')->group(function () {
         // Manager Dashboard
         Route::get('/dashboard', [ManagerController::class, 'index'])->name('dashboard');
         // ... other manager routes
@@ -88,7 +114,7 @@ Route::middleware(['auth', 'verified', 'password.changed'])->group(function () {
     | Team Member Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:team_member')->prefix('timesheets')->name('timesheets.')->group(function () {
+    Route::middleware(['checkRole:team_member'])->prefix('timesheets')->name('timesheets.')->group(function () {
         // Timesheets Index
         Route::get('/', [TimesheetController::class, 'index'])->name('index');
         // ... other timesheet routes

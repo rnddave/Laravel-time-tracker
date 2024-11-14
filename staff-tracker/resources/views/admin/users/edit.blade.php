@@ -1,61 +1,144 @@
+@push('scripts')
+    <script src="//unpkg.com/alpinejs" defer></script>
+@endpush
+
 <x-app-layout>
-    <div class="container mx-auto px-4">
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Edit User') }}
+        </h2>
+    </x-slot>
+
+    <div class="container mx-auto px-4 py-6">
         <x-card>
-            <h2 class="text-2xl font-bold mb-6">Edit User</h2>
-
-            @if ($errors->any())
-                <x-alert type="error">
-                    <ul class="list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </x-alert>
-            @endif
-
-            <form method="POST" action="{{ route('admin.users.update', $user->id) }}" class="space-y-6">
+            <form method="POST" action="{{ route('admin.users.update', $user->id) }}" x-data="userForm()" x-init="init()" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
-                <x-input type="text" label="Name" name="name" :value="$user->name" required autofocus />
-
-                <x-input type="email" label="Email Address" name="email" :value="$user->email" required />
-
+                <!-- Name -->
                 <div class="mb-4">
-                    <label for="role" class="block text-sm font-medium mb-1">Role</label>
-                    <select 
-                        id="role" 
-                        name="role" 
-                        required 
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
-                    >
-                        <option value="">Select Role</option>
-                        @foreach($roles as $role)
-                            <option value="{{ $role }}" {{ (old('role', $user->role) === $role) ? 'selected' : '' }}>
-                                {{ ucfirst(str_replace('_', ' ', $role)) }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('role')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
+                    <x-label for="name" :value="__('Name')" />
+
+                    <x-input id="name" class="block mt-1 w-full" type="text" name="name" value="{{ old('name', $user->name) }}" required autofocus />
                 </div>
 
-                <hr class="my-6 border-gray-200 dark:border-gray-700">
+                <!-- Email -->
+                <div class="mb-4">
+                    <x-label for="email" :value="__('Email')" />
 
-                <h4 class="text-lg font-semibold mb-4">Change Password</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Leave blank if you don't want to change the password.</p>
+                    <x-input id="email" class="block mt-1 w-full" type="email" name="email" value="{{ old('email', $user->email) }}" required />
+                </div>
 
-                <x-input type="password" label="New Password" name="password" />
-                <x-input type="password" label="Confirm New Password" name="password_confirmation" />
+                <!-- Role -->
+                <div class="mb-4">
+                    <x-label for="role" :value="__('Role')" />
 
-                <div class="flex items-center justify-between">
-                    <x-button type="primary">Update User</x-button>
-                    <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                        Cancel
-                    </a>
+                    <select id="role" name="role" class="block mt-1 w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
+                        <option value="team_member" {{ old('role', $user->role) === 'team_member' ? 'selected' : '' }}>Team Member</option>
+                        <option value="manager" {{ old('role', $user->role) === 'manager' ? 'selected' : '' }}>Manager</option>
+                        <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                    </select>
+                </div>
+
+                <!-- Department and Team Selection with Alpine.js -->
+                <div class="mb-4">
+                    <!-- Department -->
+                    <div class="mb-4">
+                        <x-label for="department_id" :value="__('Department')" />
+
+                        <select id="department_id" name="department_id" x-model="selectedDepartment" @change="fetchTeams()" class="block mt-1 w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
+                            <option value="">-- Select Department --</option>
+                            @foreach($departments as $department)
+                                <option value="{{ $department->id }}" {{ old('department_id', $user->department_id) == $department->id ? 'selected' : '' }}>
+                                    {{ $department->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Team -->
+                    <div class="mb-4">
+                        <x-label for="team_id" :value="__('Team')" />
+
+                        <select id="team_id" name="team_id" x-model="selectedTeam" class="block mt-1 w-full border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
+                            <option value="">-- Select Team --</option>
+                            <template x-for="team in teams" :key="team.id">
+                                <option :value="team.id" x-text="team.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-4">
+                    <x-label for="password" :value="__('Password')" />
+
+                    <x-input id="password" class="block mt-1 w-full"
+                             type="password"
+                             name="password"
+                             autocomplete="new-password" />
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-4">
+                    <x-label for="password_confirmation" :value="__('Confirm Password')" />
+
+                    <x-input id="password_confirmation" class="block mt-1 w-full"
+                             type="password"
+                             name="password_confirmation" />
+                </div>
+
+                <!-- Active Status -->
+                <div class="mb-4 flex items-center">
+                    <input type="hidden" name="is_active" value="0">
+                    <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', $user->is_active) ? 'checked' : '' }} class="mr-2">
+                    <x-label for="is_active" :value="__('Active')" />
+                </div>
+
+                <div class="flex items-center justify-end mt-4">
+                    <x-button type="primary">
+                        {{ __('Update User') }}
+                    </x-button>
                 </div>
             </form>
         </x-card>
     </div>
+
+    <script>
+        function userForm() {
+            return {
+                selectedDepartment: @json(old('department_id', $user->department_id)),
+                selectedTeam: @json(old('team_id', $user->team_id)),
+                teams: [],
+
+                init() {
+                    if (this.selectedDepartment) {
+                        this.fetchTeams().then(() => {
+                            // After fetching, ensure selectedTeam is within the fetched teams
+                            const teamExists = this.teams.some(team => team.id === this.selectedTeam);
+                            if (!teamExists) {
+                                this.selectedTeam = null;
+                            }
+                        });
+                    }
+                },
+
+                fetchTeams() {
+                    return fetch(`/admin/departments/${this.selectedDepartment}/teams`)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.teams = data.teams;
+                            // Check if the current selectedTeam exists in the fetched teams
+                            const teamExists = this.teams.some(team => team.id === this.selectedTeam);
+                            if (!teamExists) {
+                                this.selectedTeam = null;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching teams:', error);
+                        });
+                }
+            }
+        }
+    </script>
 </x-app-layout>
