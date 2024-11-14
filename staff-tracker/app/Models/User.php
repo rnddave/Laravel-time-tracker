@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +21,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'password_changed_at',
+        'department_id',
+        'team_id',
+        'is_active',
+        'last_login_at', 
     ];
 
     /**
@@ -43,6 +44,38 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password_changed_at' => 'datetime',
+        'last_login_at' => 'datetime', 
     ];
+
+    /**
+     * Get the department the user belongs to.
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * Get the team the user belongs to.
+     */
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    /**
+     * Get the manager of the user.
+     */
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    /**
+     * Set the user's last login timestamp.
+     */
+    public function setLastLoginAtAttribute($value)
+    {
+        $this->attributes['last_login_at'] = $value;
+    }
 }

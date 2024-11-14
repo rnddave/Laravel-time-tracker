@@ -16,10 +16,29 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    <!-- Admin Dropdown -->
                     @if(Auth::check() && Auth::user()->role === 'admin')
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                            {{ __('Manage Users') }}
+                            {{ __('Users') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.departments.index')" :active="request()->routeIs('admin.departments.*')">
+                            {{ __('Departments') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.teams.index')" :active="request()->routeIs('admin.teams.*')">
+                            {{ __('Teams') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.timecodes.index')" :active="request()->routeIs('admin.timecodes.*')">
+                            {{ __('Time Codes') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.timesheets.index')" :active="request()->routeIs('admin.timesheets.*')">
+                            {{ __('Timesheets') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.admins.index')" :active="request()->routeIs('admin.admins.*')">
+                            {{ __('Admins') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -47,7 +66,19 @@
 
                         @if(Auth::check() && Auth::user()->role === 'admin')
                             <x-dropdown-link :href="route('admin.users.index')">
-                                {{ __('Manage Users') }}
+                                {{ __('Users') }}
+                            </x-dropdown-link>
+
+                            <x-dropdown-link :href="route('admin.departments.index')">
+                                {{ __('Departments') }}
+                            </x-dropdown-link>
+
+                            <x-dropdown-link :href="route('admin.teams.index')">
+                                {{ __('Teams') }}
+                            </x-dropdown-link>
+
+                            <x-dropdown-link :href="route('admin.admins.index')">
+                                {{ __('Admins') }}
                             </x-dropdown-link>
                         @endif
 
@@ -86,7 +117,27 @@
 
             @if(Auth::check() && Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                    {{ __('Manage Users') }}
+                    {{ __('Users') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.departments.index')" :active="request()->routeIs('admin.departments.*')">
+                    {{ __('Departments') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.teams.index')" :active="request()->routeIs('admin.teams.*')">
+                    {{ __('Teams') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.timecodes.index')" :active="request()->routeIs('admin.timecodes.*')">
+                    {{ __('Time Codes') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.timesheets.index')" :active="request()->routeIs('admin.timesheets.*')">
+                    {{ __('Timesheets') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.admins.index')" :active="request()->routeIs('admin.admins.*')">
+                    {{ __('Admins') }}
                 </x-responsive-nav-link>
             @endif
         </div>
@@ -105,7 +156,19 @@
 
                 @if(Auth::check() && Auth::user()->role === 'admin')
                     <x-responsive-nav-link :href="route('admin.users.index')">
-                        {{ __('Manage Users') }}
+                        {{ __('Users') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('admin.departments.index')">
+                        {{ __('Departments') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('admin.teams.index')">
+                        {{ __('Teams') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('admin.admins.index')">
+                        {{ __('Admins') }}
                     </x-responsive-nav-link>
                 @endif
 
