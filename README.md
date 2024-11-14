@@ -167,4 +167,4 @@ With Sprint 1 completed, the project is now equipped with essential authenticati
 
 ## Further Information
 
-For a detailed walkthrough of Sprint 1, please refer to my [blog post](https://onemoredavid.com/blog/2024-12-07-time-tracker-initial-setup).
+For a detailed walkthrough of Sprint 1, please refer to my [blog post](https://onemoredavid.com/blog/2024-12-07-timesheets-initial-setup/).
