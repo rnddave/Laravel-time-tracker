@@ -16,7 +16,7 @@ class AdminUserSeeder extends Seeder
         User::create([
             'name' => 'Timesheet Admin',
             'email' => 'timesheet-admin-master@onemoredavid.com',
-            'password' => 'Password123',
+            'password' => bcrypt('Password123'),
             'role' => 'admin',
             'password_changed_at' => now(),
         ]);
